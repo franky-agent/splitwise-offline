@@ -65,7 +65,7 @@ class CompositeSyncTransport @Inject constructor(
         appScope.launch { relay.incoming.collect { handle(it, seen) } }
     }
 
-    private suspend fun handle(msg: SyncMessage, seen: mutableSetOf<String>) {
+    private suspend fun handle(msg: SyncMessage, seen: MutableSet<String>) {
         val key = dedupKey(msg)
         if (seen.size > 4096) seen.clear()
         if (!seen.add(key)) return

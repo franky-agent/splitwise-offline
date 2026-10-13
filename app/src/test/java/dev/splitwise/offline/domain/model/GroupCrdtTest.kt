@@ -41,8 +41,8 @@ class GroupCrdtTest {
         // Convergence: both have the expense AND the member.
         assertTrue(mergedOnA.expenses.containsKey("e1"))
         assertTrue(mergedOnA.members.containsKey("m2"))
-        assertEquals(2, mergedOnA.clock["A"])
-        assertEquals(1, mergedOnA.clock["B"])
+        assertEquals(2L, mergedOnA.clock[A])
+        assertEquals(1L, mergedOnA.clock[B])
     }
 
     @Test fun `idempotent merge does not duplicate`() {
@@ -52,14 +52,14 @@ class GroupCrdtTest {
     }
 
     @Test fun `settlement suggestions zero out balances`() {
-        val g = Group.new("g1", "Trip", "USD", A, 1000)
-            .copy(
-                members = mapOf(
-                    "m1" to Member.new("m1", "Alice", A, g.clock, 1000),
-                    "m2" to Member.new("m2", "Bob", A, g.clock, 1000),
-                ),
-                memberTags = g.memberTags.add("m1", "A:1").add("m2", "A:2"),
-            )
+        val base = Group.new("g1", "Trip", "USD", A, 1000)
+        val g = base.copy(
+            members = mapOf(
+                "m1" to Member.new("m1", "Alice", A, base.clock, 1000),
+                "m2" to Member.new("m2", "Bob", A, base.clock, 1000),
+            ),
+            memberTags = base.memberTags.add("m1", "A:1").add("m2", "A:2"),
+        )
         // Alice paid 10000 (100.00) split equally -> Alice is owed 50, Bob owes 50.
         val withExpense = g.copy(
             expenses = mapOf(

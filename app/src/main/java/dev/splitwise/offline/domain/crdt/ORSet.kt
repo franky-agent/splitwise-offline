@@ -19,6 +19,13 @@ class ORSet<T>(
     // tombstoned add-tags (removed). In production, GC these after all replicas ack.
     private val tombstones: Set<String> = emptySet(),
 ) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ORSet<*>) return false
+        return elements == other.elements && tombstones == other.tombstones
+    }
+
+    override fun hashCode(): Int = 31 * elements.hashCode() + tombstones.hashCode()
     fun add(element: T, tag: String): ORSet<T> {
         if (tag in tombstones) return this // already removed — keep tombstoned
         val tags = elements[element].orEmpty() + tag

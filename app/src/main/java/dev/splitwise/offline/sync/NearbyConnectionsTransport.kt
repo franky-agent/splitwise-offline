@@ -20,6 +20,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -187,5 +188,5 @@ class NearbyConnectionsTransport @Inject constructor(
 }
 
 private fun CoroutineScope.launchSafe(block: suspend () -> Unit) {
-    kotlinx.coroutines.launch { runCatching { block() } }
+    launch { runCatching { block() } }
 }

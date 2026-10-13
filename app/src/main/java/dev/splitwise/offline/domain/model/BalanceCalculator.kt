@@ -42,7 +42,7 @@ object BalanceCalculator {
             net[fixTarget] = net[fixTarget]!! - dust
         }
 
-        val creditors = net.filter { it.value > 0 }.entries.sortedByDescending { it.value }.toMutableList()
+        val creditors = net.filter { it.value > 0 }.map { it.key to it.value }.sortedByDescending { it.second }.toMutableList()
         val debtors = net.filter { it.value < 0 }.map { it.key to -it.value }.sortedByDescending { it.second }.toMutableList()
 
         val out = mutableListOf<Settlement>()
@@ -52,9 +52,9 @@ object BalanceCalculator {
             val (debtor, dAmt) = debtors[di]
             val pay = minOf(cAmt, dAmt)
             if (pay > 0) out += Settlement(from = debtor, to = creditor, amount = pay)
-            creditors[ci] = creditors[ci].copy(value = creditors[ci].value - pay)
+            creditors[ci] = creditor to (cAmt - pay)
             debtors[di] = debtor to (dAmt - pay)
-            if (creditors[ci].value == 0L) ci++
+            if (creditors[ci].second == 0L) ci++
             if (debtors[di].second == 0L) di++
         }
         return out

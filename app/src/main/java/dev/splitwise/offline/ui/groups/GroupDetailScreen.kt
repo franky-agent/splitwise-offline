@@ -66,7 +66,7 @@ fun GroupDetailScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = onAddExpense, enabled = (group?.memberIds?.size ?: 0) > 0) {
+            FloatingActionButton(onClick = onAddExpense) {
                 Icon(Icons.Filled.Add, contentDescription = "Add expense")
             }
         }

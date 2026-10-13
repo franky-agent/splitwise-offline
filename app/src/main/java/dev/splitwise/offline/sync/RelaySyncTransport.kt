@@ -9,8 +9,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -93,7 +95,7 @@ class RelaySyncTransport @Inject constructor(
     /** Join a room so the relay routes messages for this group to us. Called on broadcast. */
     fun joinRoom(roomId: String) {
         if (joinedRooms.add(roomId)) {
-            sendControl(buildJsonObject { put("type", "join"); put("room", roomId) })
+            sendControl(buildJsonObject { put("type", JsonPrimitive("join")); put("room", JsonPrimitive(roomId)) })
         }
     }
 
@@ -109,8 +111,8 @@ class RelaySyncTransport @Inject constructor(
         for (roomId in rooms) {
             joinRoom(roomId)
             val frame = buildJsonObject {
-                put("type", "sync")
-                put("room", roomId)
+                put("type", JsonPrimitive("sync"))
+                put("room", JsonPrimitive(roomId))
                 put("data", json.parseToJsonElement(payload))
             }
             s.send(frame.toString())
@@ -179,5 +181,5 @@ class RelaySyncTransport @Inject constructor(
 }
 
 private fun CoroutineScope.launchSafe(block: suspend () -> Unit) {
-    kotlinx.coroutines.launch { runCatching { block() } }
+    launch { runCatching { block() } }
 }
