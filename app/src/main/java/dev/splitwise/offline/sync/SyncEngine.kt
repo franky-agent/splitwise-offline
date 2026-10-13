@@ -46,11 +46,17 @@ class SyncEngine @Inject constructor(
         scope.launch {
             transport.incoming.collectLatest { msg -> handleIncoming(msg, deviceId) }
         }
-        // When a peer connects, kick off a round.
+        // When a peer connects (either transport), kick off a round.
         scope.launch {
             transport.isConnected.collectLatest { connected ->
                 if (connected) sendSyncRequest(deviceId)
             }
+        }
+        // When a NEW peer joins a room we're in (relay presence signal), re-send our
+        // sync request so they can pull our state. Critical for non-co-located sync where
+        // our connection stays open but a new device comes online later.
+        scope.launch {
+            transport.peerJoined.collectLatest { sendSyncRequest(deviceId) }
         }
     }
 

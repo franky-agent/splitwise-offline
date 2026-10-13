@@ -7,6 +7,8 @@ import dev.splitwise.offline.data.repo.GroupRepository
 import dev.splitwise.offline.domain.model.BalanceCalculator
 import dev.splitwise.offline.domain.model.Group
 import dev.splitwise.offline.sync.SyncEngine
+import dev.splitwise.offline.sync.SyncTransport
+import dev.splitwise.offline.sync.TransportStatus
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -17,11 +19,16 @@ import javax.inject.Inject
 class GroupListViewModel @Inject constructor(
     private val repo: GroupRepository,
     private val syncEngine: SyncEngine,
+    private val transport: SyncTransport,
     private val deviceId: String,
 ) : ViewModel() {
 
     val groups: StateFlow<List<Group>> = repo.observeAll()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    /** Live sync transport status for the banner in the UI. */
+    val syncStatus: StateFlow<TransportStatus> = transport.status
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TransportStatus.IDLE)
 
     fun createGroup(name: String, currency: String) {
         viewModelScope.launch { repo.createGroup(name, currency, deviceId) }

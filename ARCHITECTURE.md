@@ -96,6 +96,33 @@ touching the data layer or UI:
 Each is a new class implementing `SyncTransport` + a one-line `@Binds` change in
 `di/SyncModule.kt`.
 
+### v2: Remote sync without proximity (the minimal relay)
+
+Nearby Connections only works when devices are in proximity. For sync between
+devices on different networks, v2 adds a **minimal WebSocket relay**
+(`relay/server.js`, ~60 lines) and a `RelaySyncTransport` client. The crucial
+constraint the user set: **if a server is unavoidable, it must be for data transfer
+only — no storage.** The relay honors this:
+
+- **No storage.** The relay holds room memberships in process memory only. When a
+  client disconnects or the relay restarts, everything is forgotten. App data
+  (groups, expenses, balances) lives exclusively on devices as CRDTs.
+- **No business logic.** The relay cannot create, read, or modify groups. It only
+  routes opaque JSON blobs between WebSockets in the same "room" (group id).
+- **Untrusted by design.** The relay never inspects payload contents. Auth happens
+  between devices (via the CRDT's `authorDeviceId`); the relay is a dumb pipe.
+
+`CompositeSyncTransport` wraps both Nearby and the relay, merging their `incoming`
+flows (deduped) and broadcasting to both. The `SyncEngine` and CRDT layer didn't
+change at all — they still talk to one `SyncTransport`. That's the architectural
+payoff: **adding remote sync was 1 new transport class + 1 composite class + the
+relay, with zero changes to the data layer or sync protocol.**
+
+A presence signal (`peerJoined`) was added to the `SyncTransport` interface so
+already-connected relay clients learn when a new device joins their room and can
+re-send a sync request — Nearby doesn't need it (its `isConnected` toggles per
+peer), but the relay's connection stays open so it needs an explicit nudge.
+
 ---
 
 ## The sync protocol

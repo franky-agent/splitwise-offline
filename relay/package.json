@@ -1,0 +1,15 @@
+{
+  "name": "splitwise-offline-relay",
+  "version": "1.0.0",
+  "description": "Minimal storage-free WebSocket relay for non-co-located CRDT sync. Forwards bytes only, never stores app data.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

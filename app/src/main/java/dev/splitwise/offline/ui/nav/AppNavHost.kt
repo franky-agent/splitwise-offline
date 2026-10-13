@@ -10,12 +10,14 @@ import dev.splitwise.offline.ui.expenses.AddExpenseScreen
 import dev.splitwise.offline.ui.groups.GroupDetailScreen
 import dev.splitwise.offline.ui.groups.GroupListScreen
 import dev.splitwise.offline.ui.groups.NewGroupScreen
+import dev.splitwise.offline.ui.settings.SettingsScreen
 
 object Routes {
     const val GROUPS = "groups"
     const val NEW_GROUP = "groups/new"
     const val GROUP_DETAIL = "groups/{groupId}"
     const val ADD_EXPENSE = "groups/{groupId}/expenses/new"
+    const val SETTINGS = "settings"
     fun groupDetail(id: String) = "groups/$id"
     fun addExpense(id: String) = "groups/$id/expenses/new"
 }
@@ -29,6 +31,7 @@ fun AppNavHost() {
             GroupListScreen(
                 onNewGroup = { nav.navigate(Routes.NEW_GROUP) },
                 onOpenGroup = { id -> nav.navigate(Routes.groupDetail(id)) },
+                onOpenSettings = { nav.navigate(Routes.SETTINGS) },
             )
         }
 
@@ -57,6 +60,10 @@ fun AppNavHost() {
                 groupId = groupId,
                 onDone = { nav.popBackStack() },
             )
+        }
+
+        composable(Routes.SETTINGS) {
+            SettingsScreen(onBack = { nav.popBackStack() })
         }
     }
 }

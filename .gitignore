@@ -39,3 +39,7 @@ local.properties
 *.log
 .DS_Store
 captures/
+
+# Node (relay)
+relay/node_modules/
+node_modules/

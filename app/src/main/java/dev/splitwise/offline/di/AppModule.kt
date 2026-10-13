@@ -9,6 +9,10 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dev.splitwise.offline.data.AppDatabase
 import dev.splitwise.offline.data.dao.GroupDao
+import dev.splitwise.offline.sync.ApplicationScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.serialization.json.Json
 import java.security.SecureRandom
 import javax.inject.Singleton
@@ -38,6 +42,15 @@ object AppModule {
 
     // GroupRepository is provided via its own @Inject constructor + @Singleton —
     // no @Provides needed (that would be a duplicate binding).
+
+    /**
+     * A long-lived coroutine scope tied to the app process. Used by transports that
+     * need to merge child flows for their lifetime (e.g. CompositeSyncTransport).
+     * Cancelled when the app process is destroyed — which is fine because transports
+     * are re-created on next launch.
+     */
+    @Provides @Singleton @ApplicationScope
+    fun applicationScope(): CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     /**
      * A stable per-install device id. We use Android's ANDROID_ID (per-app-signing-key

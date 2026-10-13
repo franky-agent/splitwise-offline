@@ -2,6 +2,7 @@ package dev.splitwise.offline.sync
 
 import dev.splitwise.offline.domain.model.Group
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 
 /**
  * Abstraction over the P2P link. The app never talks to a specific transport
@@ -14,6 +15,12 @@ import kotlinx.coroutines.flow.Flow
  *   2. [incoming] emits [SyncMessage]s received from any connected peer.
  *   3. [broadcast] pushes a message to all currently connected peers.
  *   4. [stop] tears down connections.
+ *
+ * v2 addition: [peerJoined] emits the room id (group id) when a NEW peer appears in a
+ * room we've joined — used by relay-style transports so already-connected devices
+ * learn that someone new came online and should be sent a fresh sync request.
+ * Nearby-style transports emit nothing here (their [isConnected] already toggles on
+ * each new peer).
  */
 interface SyncTransport {
 
@@ -25,6 +32,9 @@ interface SyncTransport {
 
     /** Messages received from peers. */
     val incoming: Flow<SyncMessage>
+
+    /** Emits a room id (group id) when a new peer joins that room. Default: never. */
+    val peerJoined: Flow<String> get() = emptyFlow()
 
     fun startAdvertising(deviceId: String)
     fun startDiscovering(deviceId: String)

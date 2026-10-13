@@ -72,6 +72,9 @@ dependencies {
     // Nearby Connections — serverless P2P transport
     implementation(libs.google.nearby.connections)
 
+    // OkHttp — WebSocket client for the remote relay transport (v2: non-co-located sync)
+    implementation(libs.okhttp)
+
     // Unit tests (pure-JVM domain layer — CRDT convergence proofs)
     testImplementation("junit:junit:4.13.2")
 }
